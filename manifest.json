@@ -1,0 +1,30 @@
+{
+  "name": "ระบบอนุมัติความปลอดภัย",
+  "short_name": "อนุมัติความปลอดภัย",
+  "description": "ระบบอนุมัติความปลอดภัย - จัดการคำขออนุญาตเติมน้ำมัน",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/parakeet/96/document.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://img.icons8.com/parakeet/192/document.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://img.icons8.com/parakeet/480/document.png",
+      "sizes": "480x480",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
