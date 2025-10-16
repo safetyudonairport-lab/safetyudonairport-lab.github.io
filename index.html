@@ -4,26 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ระบบอนุมัติความปลอดภัย</title>
-    <!-- Favicon for general browsers -->
     <link rel="icon" type="image/png" href="https://img.icons8.com/parakeet/480/document.png">
     <link rel="shortcut icon" type="image/png" href="https://img.icons8.com/parakeet/480/document.png">
-    
-    <!-- Apple Touch Icons (สำคัญสำหรับ iPad/iPhone) -->
     <link rel="apple-touch-icon" sizes="180x180" href="https://img.icons8.com/parakeet/180/document.png">
     <link rel="apple-touch-icon" sizes="152x152" href="https://img.icons8.com/parakeet/152/document.png">
     <link rel="apple-touch-icon" sizes="120x120" href="https://img.icons8.com/parakeet/120/document.png">
     <link rel="apple-touch-icon" href="https://img.icons8.com/parakeet/180/document.png">
-    
-    <!-- Safari Pinned Tab (iPad/Mac) -->
     <link rel="mask-icon" href="https://img.icons8.com/parakeet/480/document.png" color="#27ae60">
-    
     <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="ระบบคำขออนุญาต">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="manifest" href="/manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
     <style>
@@ -591,25 +584,6 @@
             display: block;
         }
 
-        .btn-search {
-            padding: 12px 24px;
-            background: var(--secondary-color);
-            color: var(--white);
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .btn-search:hover {
-            background: #2980b9;
-            box-shadow: var(--shadow-hover);
-            transform: translateY(-2px);
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
@@ -833,10 +807,6 @@
                 width: 100%;
             }
 
-            .btn-search {
-                width: 100%;
-            }
-
             .data-table {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
@@ -1044,16 +1014,16 @@
                 </div>
                 <div class="form-group">
                     <label for="refuelDate">5. วันที่ต้องการเติมน้ำมัน (dd/MM/yyyy) *</label>
-                    <input type="text" id="refuelDate" required placeholder="15/10/2025" readonly>
+                    <input type="text" id="refuelDate" required placeholder="15/10/2025">
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="startTime">6. เริ่มเวลา (24hr) *</label>
-                        <input type="text" id="startTime" required placeholder="14:00" readonly>
+                        <input type="text" id="startTime" required placeholder="14:00">
                     </div>
                     <div class="form-group">
                         <label for="endTime">7. ถึงเวลา (24hr) *</label>
-                        <input type="text" id="endTime" required placeholder="15:00" readonly>
+                        <input type="text" id="endTime" required placeholder="15:00">
                     </div>
                 </div>
                 <div class="form-group">
@@ -1127,6 +1097,11 @@ const itemsPerPage = 10;
 let autoRefreshInterval = null;
 let searchQuery = '';
 
+// Flatpickr instances
+let refuelDatePicker = null;
+let startTimePicker = null;
+let endTimePicker = null;
+
 function formatDateTime(dateString) {
     if (!dateString) return '-';
     try {
@@ -1164,16 +1139,16 @@ function formatDateOnly(dateString) {
                 const day = parts[0].padStart(2, '0');
                 const month = parts[1].padStart(2, '0');
                 const year = parts[2];
-                return `${day}-${month}-${year}`;
+                return `${day}/${month}/${year}`;
             }
         }
-        if (dateString.match(/^\d{2}-\d{2}-\d{4}$/)) return dateString;
+        if (dateString.match(/^\d{2}\/\d{2}\/\d{4}$/)) return dateString;
         const date = new Date(dateString);
         if (isNaN(date.getTime())) return dateString;
         const day = date.getDate().toString().padStart(2, '0');
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
         const year = date.getFullYear();
-        return `${day}-${month}-${year}`;
+        return `${day}/${month}/${year}`;
     } catch (error) {
         return dateString;
     }
@@ -1188,11 +1163,7 @@ function formatTimeOnly(timeString) {
             const minutes = parts[1].padStart(2, '0');
             return `${hours}:${minutes}`;
         }
-        const date = new Date(timeString);
-        if (isNaN(date.getTime())) return timeString;
-        const hours = date.getUTCHours().toString().padStart(2, '0');
-        const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-        return `${hours}:${minutes}`;
+        return timeString;
     } catch (error) {
         return timeString;
     }
@@ -1214,19 +1185,22 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     updateThemeColor('#ffffff');
     
-    flatpickr("#refuelDate", {
+    // Initialize Flatpickr for Add Modal
+    refuelDatePicker = flatpickr("#refuelDate", {
         dateFormat: "d/m/Y",
         allowInput: false,
         locale: "th"
     });
-    flatpickr("#startTime", {
+    
+    startTimePicker = flatpickr("#startTime", {
         enableTime: true,
         noCalendar: true,
         dateFormat: "H:i",
         time_24hr: true,
         allowInput: false
     });
-    flatpickr("#endTime", {
+    
+    endTimePicker = flatpickr("#endTime", {
         enableTime: true,
         noCalendar: true,
         dateFormat: "H:i",
@@ -1328,7 +1302,6 @@ function showMainSystem() {
     }
     
     currentPage = 1;
-    
     startAutoRefresh();
 }
 
@@ -1817,6 +1790,10 @@ function openAddModal() {
 function closeAddModal() {
     document.getElementById('addModal').style.display = 'none';
     document.getElementById('addForm').reset();
+    // Reset flatpickr values
+    if (refuelDatePicker) refuelDatePicker.clear();
+    if (startTimePicker) startTimePicker.clear();
+    if (endTimePicker) endTimePicker.clear();
 }
 
 document.getElementById('addForm').addEventListener('submit', async (e) => {
@@ -1826,9 +1803,16 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
     const addSpinner = document.getElementById('addSpinner');
     const addBtnText = document.getElementById('addBtnText');
     
-    const refuelDate = document.getElementById('refuelDate').value.trim();
-    const startTime = document.getElementById('startTime').value.trim();
-    const endTime = document.getElementById('endTime').value.trim();
+    // Get values directly from input elements
+    const refuelDateInput = document.getElementById('refuelDate');
+    const startTimeInput = document.getElementById('startTime');
+    const endTimeInput = document.getElementById('endTime');
+    
+    const refuelDate = refuelDateInput.value.trim();
+    const startTime = startTimeInput.value.trim();
+    const endTime = endTimeInput.value.trim();
+    
+    console.log('Form values:', { refuelDate, startTime, endTime }); // Debug
     
     if (!refuelDate || !startTime || !endTime) {
         Swal.fire({ 
@@ -1856,6 +1840,8 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
         phoneNumber: document.getElementById('phoneNumber').value
     };
     
+    console.log('Sending data:', newData); // Debug
+    
     addBtn.disabled = true;
     addSpinner.classList.add('active');
     addBtnText.textContent = 'กำลังบันทึก...';
@@ -1870,6 +1856,7 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
         });
         
         const result = await response.json();
+        console.log('Server response:', result); // Debug
         
         if (result.success) {
             await Swal.fire({ 
@@ -1890,10 +1877,11 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
             });
         }
     } catch (error) {
+        console.error('Error:', error); // Debug
         Swal.fire({ 
             icon: 'error', 
             title: 'เกิดข้อผิดพลาด', 
-            text: 'ไม่สามารถบันทึกข้อมูลได้', 
+            text: 'ไม่สามารถบันทึกข้อมูลได้: ' + error.message, 
             confirmButtonColor: '#27ae60' 
         });
     } finally {
@@ -1985,7 +1973,7 @@ function displayDetailForm(data) {
         
         <div class="form-group">
             <label>วันที่ต้องการเติมน้ำมัน</label>
-            <input type="text" id="detailRefuelDate" value="${formatDateOnly(data.วันที่ต้องการเติมน้ำมัน)}" ${readonly} placeholder="dd-mm-yyyy">
+            <input type="text" id="detailRefuelDate" value="${formatDateOnly(data.วันที่ต้องการเติมน้ำมัน)}" ${readonly} placeholder="dd/MM/yyyy">
         </div>
         
         <div class="form-row">
@@ -2089,7 +2077,7 @@ function displayDetailForm(data) {
     
     if (isAdmin && !isApproved) {
         const detailRefuelDateElem = document.getElementById('detailRefuelDate');
-        if (detailRefuelDateElem) {
+        if (detailRefuelDateElem && !detailRefuelDateElem.hasAttribute('readonly')) {
             flatpickr("#detailRefuelDate", {
                 dateFormat: "d/m/Y",
                 allowInput: false,
@@ -2098,7 +2086,7 @@ function displayDetailForm(data) {
         }
         
         const detailStartTimeElem = document.getElementById('detailStartTime');
-        if (detailStartTimeElem) {
+        if (detailStartTimeElem && !detailStartTimeElem.hasAttribute('readonly')) {
             flatpickr("#detailStartTime", {
                 enableTime: true,
                 noCalendar: true,
@@ -2109,7 +2097,7 @@ function displayDetailForm(data) {
         }
         
         const detailEndTimeElem = document.getElementById('detailEndTime');
-        if (detailEndTimeElem) {
+        if (detailEndTimeElem && !detailEndTimeElem.hasAttribute('readonly')) {
             flatpickr("#detailEndTime", {
                 enableTime: true,
                 noCalendar: true,
@@ -2245,6 +2233,7 @@ async function handleUpdate(e) {
     if (updateSpinner) updateSpinner.classList.add('active');
     if (updateText) updateText.textContent = 'กำลังบันทึก...';
     
+    // Get values directly from input elements
     const refuelDate = document.getElementById('detailRefuelDate').value.trim();
     const startTimeElem = document.getElementById('detailStartTime');
     const endTimeElem = document.getElementById('detailEndTime');
@@ -2278,6 +2267,8 @@ async function handleUpdate(e) {
         department: document.getElementById('detailDepartment').value,
         phoneNumber: document.getElementById('detailPhoneNumber').value
     };
+    
+    console.log('Update data:', updateData); // Debug
     
     try {
         const response = await fetch(API_URL, {
