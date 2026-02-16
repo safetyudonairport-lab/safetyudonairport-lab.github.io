@@ -101,6 +101,29 @@
         .toggle-password:hover{color:var(--primary)}
         .toggle-password svg{width:20px;height:20px}
 
+        /* ===== Request Warning Banner ===== */
+        .request-warning{
+            margin-top:8px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:500;
+            line-height:1.5;display:none;animation:fadeIn .3s ease
+        }
+        .request-warning.show{display:block}
+        .request-warning.warning-blue{background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
+        .request-warning.warning-orange{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+        .request-warning.warning-red{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+        /* ===== Phone with Call Button ===== */
+        .phone-wrapper{display:flex;gap:8px;align-items:center}
+        .phone-wrapper input{flex:1}
+        .btn-call{
+            width:48px;height:48px;min-width:48px;border:none;border-radius:12px;
+            background:linear-gradient(135deg,var(--success),#059669);color:#fff;
+            cursor:pointer;display:flex;align-items:center;justify-content:center;
+            transition:all .3s;padding:0
+        }
+        .btn-call:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(16,185,129,0.4)}
+        .btn-call svg{width:22px;height:22px}
+
         /* ===== Buttons ===== */
         .btn{
             width:100%;padding:14px 24px;border:none;border-radius:12px;font-size:15px;font-weight:600;
@@ -562,7 +585,7 @@
             <div class="modal-body">
                 <form id="addForm">
                     <div class="form-group"><label>1. คำขออนุญาต *</label>
-                        <select id="requestType" required>
+                        <select id="requestType" required onchange="showRequestWarning(this.value,'addRequestWarning')">
                             <option value="">-- เลือกคำขออนุญาต --</option>
                             <option value="เติมน้ำมันขณะที่ไม่มีผู้โดยสารอยู่ในอากาศยาน">1) เติมน้ำมันขณะที่ไม่มีผู้โดยสารอยู่ในอากาศยาน</option>
                             <option value="เติมน้ำมันขณะที่มีผู้โดยสารอยู่ในอากาศยาน">2) เติมน้ำมันขณะที่มีผู้โดยสารอยู่ในอากาศยาน</option>
@@ -571,6 +594,7 @@
                             <option value="ติดเครื่องยนต์หนึ่งเครื่องยนต์">5) ติดเครื่องยนต์หนึ่งเครื่องยนต์</option>
                             <option value="ติดเครื่องยนต์หนึ่งเครื่องยนต์ขณะที่มีการเติมน้ำมันอากาศยาน">6) ติดเครื่องยนต์หนึ่งเครื่องยนต์ขณะที่มีการเติมน้ำมันอากาศยาน</option>
                         </select>
+                        <div id="addRequestWarning" class="request-warning"></div>
                     </div>
                     <div class="form-group"><label>2. สายการบิน/ผู้ประกอบการ *</label><input type="text" id="airline" required></div>
                     <div class="form-row">
@@ -1109,7 +1133,7 @@ function displayDetailForm(d){
         <div class="form-group"><label>สถานะ</label><div><span class="status-badge ${sc}">${st}</span></div></div>
         <div class="form-group"><label>วันที่บันทึก</label><input value="${formatDateTime(d.Timestamp)}" readonly></div>
         <div class="form-group"><label>คำขออนุญาต</label>
-            <select id="detailRequestType" ${di}>
+            <select id="detailRequestType" ${di} onchange="showRequestWarning(this.value,'detailRequestWarning')">
                 <option value="เติมน้ำมันขณะที่ไม่มีผู้โดยสารอยู่ในอากาศยาน" ${d.คำขออนุญาต==='เติมน้ำมันขณะที่ไม่มีผู้โดยสารอยู่ในอากาศยาน'?'selected':''}>1) เติมน้ำมันขณะที่ไม่มีผู้โดยสารอยู่ในอากาศยาน</option>
                 <option value="เติมน้ำมันขณะที่มีผู้โดยสารอยู่ในอากาศยาน" ${d.คำขออนุญาต==='เติมน้ำมันขณะที่มีผู้โดยสารอยู่ในอากาศยาน'?'selected':''}>2) เติมน้ำมันขณะที่มีผู้โดยสารอยู่ในอากาศยาน</option>
                 <option value="เติมน้ำมันขณะที่ผู้โดยสารขึ้นลงอากาศยาน" ${d.คำขออนุญาต==='เติมน้ำมันขณะที่ผู้โดยสารขึ้นลงอากาศยาน'?'selected':''}>3) เติมน้ำมันขณะที่ผู้โดยสารขึ้นลงอากาศยาน</option>
@@ -1117,6 +1141,7 @@ function displayDetailForm(d){
                 <option value="ติดเครื่องยนต์หนึ่งเครื่องยนต์" ${d.คำขออนุญาต==='ติดเครื่องยนต์หนึ่งเครื่องยนต์'?'selected':''}>5) ติดเครื่องยนต์หนึ่งเครื่องยนต์</option>
                 <option value="ติดเครื่องยนต์หนึ่งเครื่องยนต์ขณะที่มีการเติมน้ำมันอากาศยาน" ${d.คำขออนุญาต==='ติดเครื่องยนต์หนึ่งเครื่องยนต์ขณะที่มีการเติมน้ำมันอากาศยาน'?'selected':''}>6) ติดเครื่องยนต์หนึ่งเครื่องยนต์ขณะที่มีการเติมน้ำมันอากาศยาน</option>
             </select>
+            <div id="detailRequestWarning" class="request-warning"></div>
         </div>
         <div class="form-group"><label>สายการบิน</label><input id="detailAirline" value="${d.สายการบินหรือผู้ประกอบการ||''}" ${ro}></div>
         <div class="form-row">
@@ -1135,7 +1160,14 @@ function displayDetailForm(d){
             <div class="form-group"><label>ตำแหน่ง</label><input id="detailContactPosition" value="${d.ตำแหน่ง||''}" ${ro}></div>
             <div class="form-group"><label>สังกัด</label><input id="detailDepartment" value="${d.สังกัด||''}" ${ro}></div>
         </div>
-        <div class="form-group"><label>เบอร์โทร</label><input id="detailPhoneNumber" value="${d.เบอร์โทรศัพท์ที่สามารถติดต่อได้||''}" ${ro}></div>`;
+        <div class="form-group"><label>เบอร์โทร</label>
+            <div class="phone-wrapper">
+                <input id="detailPhoneNumber" value="${d.เบอร์โทรศัพท์ที่สามารถติดต่อได้||''}" ${ro}>
+                <a href="tel:${d.เบอร์โทรศัพท์ที่สามารถติดต่อได้||''}" class="btn-call" title="โทรหา ${d.เบอร์โทรศัพท์ที่สามารถติดต่อได้||''}">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                </a>
+            </div>
+        </div>`;
 
     if(isA||d.ผู้อนุมัติ){
         h+=`<div class="form-row">
@@ -1159,8 +1191,40 @@ function displayDetailForm(d){
         flatpickr("#detailStartTime",{enableTime:true,noCalendar:true,dateFormat:"H:i",time_24hr:true});
         flatpickr("#detailEndTime",{enableTime:true,noCalendar:true,dateFormat:"H:i",time_24hr:true});
     }
+    // ★ แสดง warning ตามประเภทคำขอที่เลือกอยู่ ★
+    showRequestWarning(d.คำขออนุญาต,'detailRequestWarning');
 }
 function closeDetailModal(){document.getElementById('detailModal').style.display='none'}
+
+// ==========================================
+// Request Warning Messages
+// ==========================================
+function showRequestWarning(val,targetId){
+    const el=document.getElementById(targetId);
+    if(!el)return;
+    
+    const options=[
+        'เติมน้ำมันขณะที่ไม่มีผู้โดยสารอยู่ในอากาศยาน',
+        'เติมน้ำมันขณะที่มีผู้โดยสารอยู่ในอากาศยาน',
+        'เติมน้ำมันขณะที่ผู้โดยสารขึ้นลงอากาศยาน'
+    ];
+    const opt4='ทดสอบเครื่องยนต์';
+    const opt56=['ติดเครื่องยนต์หนึ่งเครื่องยนต์','ติดเครื่องยนต์หนึ่งเครื่องยนต์ขณะที่มีการเติมน้ำมันอากาศยาน'];
+    
+    if(options.includes(val)){
+        el.className='request-warning warning-blue show';
+        el.innerHTML='⚠️ กรุณาดำเนินการตามมาตรการความปลอดภัยของสายการบิน/ผู้ประกอบการ';
+    }else if(val===opt4){
+        el.className='request-warning warning-orange show';
+        el.innerHTML='⚠️ กรุณาดำเนินการตามมาตรการความปลอดภัยของสายการบิน/ผู้ประกอบการ และประสานกองบิน 23 เพื่อขอความอนุเคราะห์พื้นที่สำหรับทดสอบเครื่องยนต์';
+    }else if(opt56.includes(val)){
+        el.className='request-warning warning-red show';
+        el.innerHTML='⚠️ กรุณาดำเนินการตามมาตรการความปลอดภัยของสายการบิน/ผู้ประกอบการ และไม่มีอากาศยานจอดอยู่ทางฝั่งซ้ายของอากาศยานอย่างน้อย 1 หลุมจอด';
+    }else{
+        el.className='request-warning';
+        el.innerHTML='';
+    }
+}
 
 // ==========================================
 // Actions
@@ -1217,7 +1281,7 @@ async function doUpdateStatus(id,status,note){
 // Add Request
 // ==========================================
 function openAddModal(){document.getElementById('addModal').style.display='flex'}
-function closeAddModal(){document.getElementById('addModal').style.display='none';document.getElementById('addForm').reset()}
+function closeAddModal(){document.getElementById('addModal').style.display='none';document.getElementById('addForm').reset();const w=document.getElementById('addRequestWarning');if(w){w.className='request-warning';w.innerHTML=''}}
 
 document.getElementById('addForm').addEventListener('submit',async e=>{
     e.preventDefault();
