@@ -1,18 +1,17 @@
 {
-  "name": "ระบบอนุมัติความปลอดภัย",
-  "short_name": "อนุมัติความปลอดภัย",
-  "description": "ระบบอนุมัติความปลอดภัย - จัดการคำขออนุญาตเติมน้ำมัน",
-  "start_url": "/",
+  "name": "Safety Approve",
+  "short_name": "Safety Approve",
+  "description": "ระบบคำขออนุญาตเติมน้ำมันและการดำเนินการ",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
   "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#6366f1",
   "icons": [
     {
       "src": "https://img.icons8.com/parakeet/96/document.png",
       "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "https://img.icons8.com/parakeet/192/document.png",
