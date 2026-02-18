@@ -306,6 +306,8 @@
         .badge-user{background:rgba(6,182,212,0.15);color:var(--secondary-light)}
         .superadmin-only{display:none}
         .superadmin-only.show{display:flex}
+        .admin-up-only{display:none}
+        .admin-up-only.show{display:flex}
         .sidebar-menu{flex:1;padding:16px 12px;overflow-y:auto}
         .sidebar-menu-item{
             display:flex;align-items:center;gap:14px;padding:14px 16px;color:var(--sidebar-text);
@@ -653,7 +655,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                     จัดการผู้ใช้
                 </button>
-                <button class="sidebar-menu-item superadmin-only" id="menuEditLog" onclick="showPage('editlog');closeSidebar()">
+                <button class="sidebar-menu-item admin-up-only" id="menuEditLog" onclick="showPage('editlog');closeSidebar()">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     บันทึกการแก้ไข
                 </button>
@@ -963,7 +965,14 @@
 // ==========================================
 // Configuration
 // ==========================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbxrd8fEuRnh419llp7ZpYaJc69hBaWSeMpZitJiyNrp8r7DgUzkoaRgX8yRrGDDmSqJyw/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzqKHnHAO-CEUzwlJSRPVJ-G0hbyk_CSGUCLVEp3diqcELWTrSlP2h-FLr1xua2eaptEQ/exec';
+const API_KEY = 'SF-2026-xK9mP4qR7vL2nJ5w';
+
+// ★ Helper: ส่ง API request พร้อม Key อัตโนมัติ ★
+async function apiCall(data){
+    const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({...data,apiKey:API_KEY})});
+    return r.json();
+}
 
 const firebaseConfig = {
   apiKey: "AIzaSyAY0vYjBf2Mc_p8z5eU1uR_2jujMk7zLTw",
@@ -1111,10 +1120,7 @@ async function getFCMToken(messaging) {
 
         const token = await messaging.getToken(tokenOptions);
         if (token && currentUser) {
-            await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'saveFCMToken', userId: currentUser.id, token: token })
-            });
+            await apiCall({ action: 'saveFCMToken', userId: currentUser.id, token: token });
             console.log('FCM Token saved');
         }
     } catch (e) {
@@ -1317,8 +1323,7 @@ document.getElementById('loginForm').addEventListener('submit',async e=>{
     const btn=document.getElementById('loginBtn'),sp=document.getElementById('loginSpinner'),tx=document.getElementById('loginBtnText');
     btn.disabled=true;sp.classList.add('active');tx.textContent='กำลังเข้าสู่ระบบ...';
     try{
-        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'login',username:u,password:p})});
-        const res=await r.json();sp.classList.remove('active');
+        const res=await apiCall({action:'login',username:u,password:p});sp.classList.remove('active');
         if(res.success){
             currentUser=res.user;sessionStorage.setItem('currentUser',JSON.stringify(currentUser));
             playSound('success');
@@ -1361,6 +1366,10 @@ function updateUserUI(){
     document.querySelectorAll('.superadmin-only').forEach(el=>{
         el.classList.toggle('show',st==='superadmin');
     });
+    // Show/hide admin+superadmin menu items
+    document.querySelectorAll('.admin-up-only').forEach(el=>{
+        el.classList.toggle('show',st==='admin'||st==='superadmin');
+    });
 }
 function startAutoRefresh(){if(autoRefreshInterval)clearInterval(autoRefreshInterval);autoRefreshInterval=setInterval(()=>loadAllData(true),30000)}
 function stopAutoRefresh(){if(autoRefreshInterval){clearInterval(autoRefreshInterval);autoRefreshInterval=null}}
@@ -1371,8 +1380,7 @@ function stopAutoRefresh(){if(autoRefreshInterval){clearInterval(autoRefreshInte
 async function loadAllData(isAuto=false){
     const ld=document.getElementById('loadingData'),tw=document.getElementById('tableWrapper'),nd=document.getElementById('noData');
     try{
-        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'getAllRequestDetails'})});
-        const res=await r.json();
+        const res=await apiCall({action:'getAllRequestDetails'});
         if(res.success){
             const newDataMap={};res.data.forEach(i=>newDataMap[i.ID]=i);
             if(isAuto&&previousDataCount>0){
@@ -1598,8 +1606,7 @@ async function handleSaveEdit(id){
         phoneNumber:document.getElementById('detailPhoneNumber').value
     };
     try{
-        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'updateRequest',id,data:ud,editedBy:{name:currentUser.name,position:currentUser.position}})});
-        const res=await r.json();
+        const res=await apiCall({action:'updateRequest',id,data:ud,editedBy:{name:currentUser.name,position:currentUser.position}});
         if(res.success){playSound('success');addNotification(`แก้ไขคำขอ ${id} สำเร็จ`,'edit',id);closeDetailModal();await Swal.fire({icon:'success',title:'สำเร็จ!',text:'บันทึกการแก้ไขเรียบร้อย',timer:1500,showConfirmButton:false});loadAllData();}
         else Swal.fire({icon:'error',title:'เกิดข้อผิดพลาด',text:res.message});
     }catch(e){Swal.fire({icon:'error',title:'เกิดข้อผิดพลาด',text:'ไม่สามารถบันทึกได้'})}
@@ -1613,8 +1620,7 @@ async function doUpdateStatus(id,status,note){
     const tx=document.getElementById(status==='Approved'?'approveText':'rejectText');
     sp?.classList.add('active');if(tx)tx.textContent='กำลังดำเนินการ...';
     try{
-        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'updateStatus',id,status,approver:{name:currentUser.name,position:currentUser.position},note})});
-        const res=await r.json();
+        const res=await apiCall({action:'updateStatus',id,status,approver:{name:currentUser.name,position:currentUser.position},note});
         if(res.success){
             playSound('success');
             const msg=status==='Approved'?`อนุมัติคำขอ ${id} เรียบร้อย`:`ปฏิเสธคำขอ ${id} เรียบร้อย`;
@@ -1653,8 +1659,7 @@ document.getElementById('addForm').addEventListener('submit',async e=>{
         phoneNumber:document.getElementById('phoneNumber').value
     };
     try{
-        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'addRequest',data:nd})});
-        const res=await r.json();
+        const res=await apiCall({action:'addRequest',data:nd});
         if(res.success){playSound('success');addNotification(`เพิ่มคำขอใหม่ ${res.id} สำเร็จ`,'new',res.id);previousDataCount++;closeAddModal();await Swal.fire({icon:'success',title:'สำเร็จ!',html:`บันทึกคำขออนุญาตเรียบร้อย<br><strong>เลขที่: ${res.id}</strong>`,timer:2000,showConfirmButton:false});loadAllData();}
         else Swal.fire({icon:'error',title:'เกิดข้อผิดพลาด',text:res.message});
     }catch(e){Swal.fire({icon:'error',title:'เกิดข้อผิดพลาด'})}
@@ -1695,7 +1700,9 @@ function displayUserProfile(){
 function enableEditProfile(){
     ['profilePassword','profileName','profilePosition'].forEach(i=>document.getElementById(i).removeAttribute('readonly'));
     const f=document.getElementById('userProfileForm');
-    f.querySelector('button[type="button"]').remove();
+    // ★ ลบเฉพาะปุ่ม "แก้ไขข้อมูล" ไม่ลบ toggle-password ★
+    const editBtn=f.querySelector('button.btn.btn-primary[type="button"]');
+    if(editBtn)editBtn.remove();
     const bg=document.createElement('div');bg.className='btn-group';
     bg.innerHTML='<button type="button" class="btn btn-success" onclick="saveUserProfile()"><span class="spinner" id="updateProfileSpinner"></span><span id="updateProfileText">บันทึกการแก้ไข</span></button><button type="button" class="btn btn-danger" onclick="displayUserProfile()">ยกเลิก</button>';
     f.appendChild(bg);
@@ -1707,8 +1714,7 @@ async function saveUserProfile(){
     const p=document.getElementById('profilePassword').value.trim(),n=document.getElementById('profileName').value.trim(),po=document.getElementById('profilePosition').value.trim();
     if(!p||!n||!po){Swal.fire({icon:'warning',title:'กรุณากรอกข้อมูลให้ครบ'});sp?.classList.remove('active');if(tx)tx.textContent='บันทึกการแก้ไข';return}
     try{
-        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'updateUserProfile',id:currentUser.id,password:p,name:n,position:po})});
-        const res=await r.json();
+        const res=await apiCall({action:'updateUserProfile',id:currentUser.id,password:p,name:n,position:po});
         if(res.success){currentUser.password=p;currentUser.name=n;currentUser.position=po;sessionStorage.setItem('currentUser',JSON.stringify(currentUser));updateUserUI();playSound('success');await Swal.fire({icon:'success',title:'สำเร็จ!',timer:1500,showConfirmButton:false});closeUserProfileModal()}
         else Swal.fire({icon:'error',title:'เกิดข้อผิดพลาด',text:res.message});
     }catch(e){Swal.fire({icon:'error',title:'เกิดข้อผิดพลาด'})}
@@ -1723,8 +1729,7 @@ async function handleProfileImageChange(e){
     Swal.fire({title:'กำลังอัปโหลด...',allowOutsideClick:false,didOpen:()=>Swal.showLoading()});
     try{
         const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)});
-        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'uploadProfileImage',userId:currentUser.id,fileName:f.name,mimeType:f.type,base64Data:b64.split(',')[1]})});
-        const res=await r.json();
+        const res=await apiCall({action:'uploadProfileImage',userId:currentUser.id,fileName:f.name,mimeType:f.type,base64Data:b64.split(',')[1]});
         if(res.success){currentUser.imageUrl=res.fileId;sessionStorage.setItem('currentUser',JSON.stringify(currentUser));updateUserUI();playSound('success');Swal.fire({icon:'success',title:'สำเร็จ!',timer:1500,showConfirmButton:false})}
         else Swal.fire({icon:'error',title:'เกิดข้อผิดพลาด',text:res.message});
     }catch(err){Swal.fire({icon:'error',title:'เกิดข้อผิดพลาด'})}
@@ -1821,10 +1826,15 @@ function showPage(page){
         }
         renderAllStats(currentStatsFilter||'all');
     }else if(page==='users'){
+        // ★ เฉพาะ superadmin เท่านั้น ★
+        if(currentUser.status?.toLowerCase()!=='superadmin'){mainEl.classList.remove('hidden');menuHome.classList.add('active');return}
         if(usersEl)usersEl.classList.add('active');
         if(menuUsers)menuUsers.classList.add('active');
         loadUsers();
     }else if(page==='editlog'){
+        // ★ admin และ superadmin เข้าถึงได้ ★
+        const ust=currentUser.status?.toLowerCase();
+        if(ust!=='admin'&&ust!=='superadmin'){mainEl.classList.remove('hidden');menuHome.classList.add('active');return}
         if(editlogEl)editlogEl.classList.add('active');
         if(menuEditLog)menuEditLog.classList.add('active');
         loadEditLogs();
@@ -2195,8 +2205,7 @@ async function loadUsers(){
     const pc=document.getElementById('usersPaginationContainer');
     ld.style.display='flex';tw.style.display='none';pc.style.display='none';
     try{
-        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'getAllUsers'})});
-        const res=await r.json();
+        const res=await apiCall({action:'getAllUsers'});
         if(res.success){
             allUsersData=res.data||[];
             usersCurrentPage=1;
@@ -2274,11 +2283,10 @@ document.getElementById('editUserForm').addEventListener('submit',async(e)=>{
     };
     
     try{
-        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({
+        const res=await apiCall({
             action:'editUser',userId:uid,data:data,
             editedBy:{name:currentUser.name,position:currentUser.position}
-        })});
-        const res=await r.json();
+        });
         if(res.success){
             await Swal.fire({icon:'success',title:'สำเร็จ!',text:'แก้ไขข้อมูลผู้ใช้เรียบร้อยแล้ว',timer:1500,showConfirmButton:false});
             closeEditUserModal();loadUsers();
@@ -2300,7 +2308,7 @@ document.getElementById('addUserForm').addEventListener('submit',async(e)=>{
     btn.disabled=true;sp.classList.add('active');tx.textContent='กำลังเพิ่มผู้ใช้...';
     
     try{
-        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({
+        const res=await apiCall({
             action:'addUser',
             data:{
                 username:document.getElementById('newUsername').value.trim(),
@@ -2310,8 +2318,7 @@ document.getElementById('addUserForm').addEventListener('submit',async(e)=>{
                 status:document.getElementById('newStatus').value
             },
             editedBy:{name:currentUser.name,position:currentUser.position}
-        })});
-        const res=await r.json();
+        });
         if(res.success){
             await Swal.fire({icon:'success',title:'สำเร็จ!',text:'เพิ่มผู้ใช้เรียบร้อยแล้ว ('+res.id+')',timer:1500,showConfirmButton:false});
             closeAddUserModal();loadUsers();
@@ -2334,11 +2341,10 @@ async function confirmDeleteUser(userId,userName){
     });
     if(!conf.isConfirmed)return;
     try{
-        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({
+        const res=await apiCall({
             action:'deleteUser',userId:userId,
             editedBy:{name:currentUser.name,position:currentUser.position}
-        })});
-        const res=await r.json();
+        });
         if(res.success){
             await Swal.fire({icon:'success',title:'ลบสำเร็จ',text:'ลบผู้ใช้ '+userName+' เรียบร้อยแล้ว',timer:1500,showConfirmButton:false});
             loadUsers();
@@ -2359,8 +2365,7 @@ async function loadEditLogs(){
     const pc=document.getElementById('editlogPaginationContainer');
     ld.style.display='flex';tw.style.display='none';pc.style.display='none';
     try{
-        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'getEditLogs'})});
-        const res=await r.json();
+        const res=await apiCall({action:'getEditLogs'});
         if(res.success){
             // เรียงจากล่าสุดไปเก่าสุด
             allEditLogData=(res.data||[]).slice().reverse();
@@ -2398,8 +2403,8 @@ function renderEditLogPage(){
             <td>${formatDateTime(l.Timestamp)}</td>
             <td><span class="log-action ${cls}">${l.Action||''}</span></td>
             <td>${l.TargetID||''}</td>
-            <td style="white-space:normal;max-width:300px">${l.Details||''}</td>
-            <td>${l.EditedBy||''}${l.EditedByPosition?' ('+l.EditedByPosition+')':''}</td>
+            <td style="white-space:normal;min-width:250px;max-width:500px;word-break:break-word">${l.Details||''}</td>
+            <td>${l.EditedBy||''}</td>
         `;
         tb.appendChild(tr);
     });
