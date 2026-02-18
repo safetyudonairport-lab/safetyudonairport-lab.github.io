@@ -58,7 +58,10 @@
             font-family:'Prompt',sans-serif;
             background:var(--white);min-height:100vh;
             display:flex;align-items:center;justify-content:center;
-            color:var(--text);transition:background .3s,color .3s
+            color:var(--text);transition:background .3s,color .3s;
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+            text-rendering:optimizeLegibility
         }
 
         /* ===== SweetAlert z-index fix ===== */
@@ -289,7 +292,7 @@
         }
         .navbar-avatar:hover{border-color:var(--primary);transform:scale(1.05)}
         .navbar-brand{display:flex;align-items:center;gap:12px;min-width:0}
-        .navbar-brand h2{color:var(--text);font-size:20px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .navbar-brand h2{color:var(--text);font-size:22px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .navbar-right{display:flex;align-items:center;gap:12px}
 
         /* ===== Notification Bell ===== */
@@ -374,7 +377,8 @@
         th{
             background:var(--table-header);color:#fff;
             text-align:left;font-weight:600;
-            text-transform:uppercase;letter-spacing:.5px
+            text-transform:uppercase;letter-spacing:.5px;
+            padding:20px 20px
         }
         th:first-child{border-radius:0;padding-left:24px}
         th:last-child{border-radius:0;padding-right:24px}
@@ -502,9 +506,10 @@
             .pagination{justify-content:center;flex-wrap:nowrap;gap:3px}
             .pagination button{min-width:36px;height:36px;padding:0 8px;font-size:13px;border-radius:8px}
             .notification-dropdown{position:fixed!important;top:72px!important;left:16px!important;right:16px!important;width:auto!important}
-            .navbar-brand h2{font-size:16px;max-width:150px}
+            .navbar-brand h2{font-size:18px;max-width:180px}
             .fcm-banner{flex-direction:column;text-align:center}
             th,td{padding:14px 12px}
+            th{padding:18px 12px}
             th:first-child,td:first-child{padding-left:14px}
             th:last-child,td:last-child{padding-right:14px}
         }
@@ -512,7 +517,7 @@
             .login-container{padding:32px 24px}
             .navbar{padding:12px 16px}
             .navbar-left{gap:10px}
-            .navbar-brand h2{font-size:14px;max-width:120px}
+            .navbar-brand h2{font-size:16px;max-width:160px}
             .pagination button{min-width:32px;height:32px;padding:0 6px;font-size:12px}
         }
     </style>
