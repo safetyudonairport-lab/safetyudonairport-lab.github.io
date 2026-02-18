@@ -965,12 +965,11 @@
 // ==========================================
 // Configuration
 // ==========================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbzqKHnHAO-CEUzwlJSRPVJ-G0hbyk_CSGUCLVEp3diqcELWTrSlP2h-FLr1xua2eaptEQ/exec';
-const API_KEY = 'SF-2026-xK9mP4qR7vL2nJ5w';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyG1SFu0lhpuh8hAnRISXHVKVhbsH-swly86zZC4zV7_tXCKV8PFT9UOorkOZo6P5xYJA/exec';
 
-// ★ Helper: ส่ง API request พร้อม Key อัตโนมัติ ★
+// ★ Helper: ส่ง API request พร้อม Origin อัตโนมัติ ★
 async function apiCall(data){
-    const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({...data,apiKey:API_KEY})});
+    const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({...data,_origin:window.location.origin})});
     return r.json();
 }
 
