@@ -149,7 +149,59 @@
         /* ===== Stats Page ===== */
         .stats-page{display:none}
         .stats-page.active{display:block}
+        .users-page{display:none}
+        .users-page.active{display:block}
+        .editlog-page{display:none}
+        .editlog-page.active{display:block}
         .main-page.hidden{display:none}
+        
+        /* ===== User/Log Table ===== */
+        .mgmt-card{
+            background:var(--card);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);
+            overflow:hidden;border:1px solid var(--border)
+        }
+        .mgmt-table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch}
+        .mgmt-table{width:100%;border-collapse:collapse;min-width:700px}
+        .mgmt-table th,.mgmt-table td{padding:16px 20px;line-height:1.4;font-size:14px;white-space:nowrap}
+        .mgmt-table th{
+            background:var(--table-header);color:#fff;text-align:left;font-weight:600;
+            text-transform:uppercase;letter-spacing:.5px;padding:20px 20px
+        }
+        .mgmt-table th:first-child{padding-left:24px}
+        .mgmt-table th:last-child{padding-right:24px}
+        .mgmt-table td{color:var(--text);border-bottom:1px solid var(--border);vertical-align:middle}
+        .mgmt-table td:first-child{padding-left:24px}
+        .mgmt-table td:last-child{padding-right:24px}
+        .mgmt-table tbody tr:hover{background:rgba(99,102,241,0.03)}
+        .mgmt-table tbody tr:last-child td{border-bottom:none}
+        .mgmt-controls{
+            display:flex;justify-content:space-between;align-items:center;
+            gap:12px;margin-bottom:20px;flex-wrap:wrap
+        }
+        .btn-delete-user{
+            padding:6px 14px;background:var(--danger);color:#fff;border:none;border-radius:8px;
+            font-size:12px;font-weight:600;cursor:pointer;font-family:'Prompt',sans-serif;transition:all .3s
+        }
+        .btn-delete-user:hover{background:#dc2626;transform:translateY(-1px)}
+        .btn-edit-user{
+            padding:6px 14px;background:var(--primary);color:#fff;border:none;border-radius:8px;
+            font-size:12px;font-weight:600;cursor:pointer;font-family:'Prompt',sans-serif;transition:all .3s;margin-right:6px
+        }
+        .btn-edit-user:hover{background:var(--primary-dark);transform:translateY(-1px)}
+        .btn-add-user{
+            padding:12px 24px;background:linear-gradient(135deg,var(--success),#059669);color:#fff;
+            border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;
+            display:flex;align-items:center;gap:8px;font-family:'Prompt',sans-serif;transition:all .3s
+        }
+        .btn-add-user:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(16,185,129,0.35)}
+        .log-action{
+            padding:4px 10px;border-radius:8px;font-size:12px;font-weight:600;display:inline-block
+        }
+        .log-approve{background:rgba(16,185,129,0.12);color:var(--success)}
+        .log-reject{background:rgba(239,68,68,0.12);color:var(--danger)}
+        .log-edit{background:rgba(245,158,11,0.12);color:var(--warning)}
+        .log-adduser{background:rgba(6,182,212,0.12);color:#06b6d4}
+        .log-deluser{background:rgba(239,68,68,0.12);color:var(--danger)}
         .stats-header{margin-bottom:24px}
         .stats-header h1{color:var(--text);font-size:24px;font-weight:700;margin-bottom:8px}
         .stats-header p{color:var(--text-muted);font-size:14px}
@@ -250,7 +302,10 @@
         .sidebar-user-info p{color:var(--sidebar-text);font-size:12px;font-weight:300}
         .sidebar-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;margin-top:6px}
         .badge-admin{background:rgba(16,185,129,0.15);color:var(--success-light)}
+        .badge-superadmin{background:rgba(245,158,11,0.15);color:#f59e0b}
         .badge-user{background:rgba(6,182,212,0.15);color:var(--secondary-light)}
+        .superadmin-only{display:none}
+        .superadmin-only.show{display:flex}
         .sidebar-menu{flex:1;padding:16px 12px;overflow-y:auto}
         .sidebar-menu-item{
             display:flex;align-items:center;gap:14px;padding:14px 16px;color:var(--sidebar-text);
@@ -512,6 +567,12 @@
             th{padding:18px 12px}
             th:first-child,td:first-child{padding-left:14px}
             th:last-child,td:last-child{padding-right:14px}
+            .mgmt-table th,.mgmt-table td{padding:14px 12px}
+            .mgmt-table th{padding:18px 12px}
+            .mgmt-table th:first-child,.mgmt-table td:first-child{padding-left:14px}
+            .mgmt-table th:last-child,.mgmt-table td:last-child{padding-right:14px}
+            .mgmt-controls{flex-direction:column;align-items:stretch}
+            .btn-add-user{width:100%;justify-content:center}
         }
         @media(max-width:480px){
             .login-container{padding:32px 24px}
@@ -587,6 +648,14 @@
                 <button class="sidebar-menu-item" onclick="downloadExcel();closeSidebar()">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     ดาวน์โหลด Excel
+                </button>
+                <button class="sidebar-menu-item superadmin-only" id="menuUsers" onclick="showPage('users');closeSidebar()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    จัดการผู้ใช้
+                </button>
+                <button class="sidebar-menu-item superadmin-only" id="menuEditLog" onclick="showPage('editlog');closeSidebar()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    บันทึกการแก้ไข
                 </button>
                 <button class="sidebar-menu-item" onclick="toggleTheme();closeSidebar()">
                     <svg id="themeIconSidebar" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
@@ -716,6 +785,109 @@
             <p style="color:var(--text-muted);font-size:14px;margin-bottom:20px">แสดงจำนวนครั้งที่แต่ละสายการบินขออนุญาตในแต่ละประเภท</p>
             <div class="airline-charts-grid" id="airlineChartsGrid"></div>
         </div>
+
+        <!-- ===== Users Management Page (Super Admin) ===== -->
+        <div class="content users-page" id="usersPage">
+            <div class="stats-header">
+                <h1>จัดการผู้ใช้</h1>
+                <p>เพิ่ม ลบ และจัดการบัญชีผู้ใช้ในระบบ</p>
+            </div>
+            <div class="mgmt-controls">
+                <div></div>
+                <button class="btn-add-user" onclick="openAddUserModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                    เพิ่มผู้ใช้ใหม่
+                </button>
+            </div>
+            <div class="mgmt-card">
+                <div class="loading-container" id="usersLoading"><div class="loading-spinner"></div><p>กำลังโหลดข้อมูล...</p></div>
+                <div class="mgmt-table-wrapper" id="usersTableWrapper" style="display:none">
+                    <table class="mgmt-table">
+                        <thead><tr><th>ID</th><th>Username</th><th>ชื่อ</th><th>ตำแหน่ง</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+                        <tbody id="usersTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="pagination-container" id="usersPaginationContainer" style="display:none">
+                    <div class="pagination-info" id="usersPaginationInfo"></div>
+                    <div class="pagination" id="usersPagination"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Edit Log Page (Super Admin) ===== -->
+        <div class="content editlog-page" id="editlogPage">
+            <div class="stats-header">
+                <h1>บันทึกการแก้ไข</h1>
+                <p>แสดงประวัติการแก้ไข อนุมัติ ปฏิเสธ และจัดการผู้ใช้ทั้งหมด</p>
+            </div>
+            <div class="mgmt-card">
+                <div class="loading-container" id="editlogLoading"><div class="loading-spinner"></div><p>กำลังโหลดข้อมูล...</p></div>
+                <div class="mgmt-table-wrapper" id="editlogTableWrapper" style="display:none">
+                    <table class="mgmt-table">
+                        <thead><tr><th>LogID</th><th>วันเวลา</th><th>ประเภท</th><th>ID อ้างอิง</th><th>รายละเอียด</th><th>ผู้ดำเนินการ</th></tr></thead>
+                        <tbody id="editlogTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="pagination-container" id="editlogPaginationContainer" style="display:none">
+                    <div class="pagination-info" id="editlogPaginationInfo"></div>
+                    <div class="pagination" id="editlogPagination"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Add User Modal (Super Admin) ===== -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>เพิ่มผู้ใช้ใหม่</h2><button class="close-btn" onclick="closeAddUserModal()">&times;</button></div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="form-group"><label>ชื่อผู้ใช้ (Username) *</label><input type="text" id="newUsername" required placeholder="กรอกชื่อผู้ใช้"></div>
+                    <div class="form-group"><label>รหัสผ่าน *</label><input type="text" id="newPassword" required placeholder="กรอกรหัสผ่าน"></div>
+                    <div class="form-group"><label>ชื่อ-นามสกุล *</label><input type="text" id="newName" required placeholder="กรอกชื่อ-นามสกุล"></div>
+                    <div class="form-group"><label>ตำแหน่ง *</label><input type="text" id="newPosition" required placeholder="กรอกตำแหน่ง"></div>
+                    <div class="form-group"><label>สถานะ *</label>
+                        <select id="newStatus" required>
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                            <option value="superadmin">Super Admin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="addUserBtn">
+                        <span class="spinner" id="addUserSpinner"></span>
+                        <span id="addUserBtnText">เพิ่มผู้ใช้</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Edit User Modal (Super Admin) ===== -->
+    <div class="modal" id="editUserModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>แก้ไขข้อมูลผู้ใช้</h2><button class="close-btn" onclick="closeEditUserModal()">&times;</button></div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId">
+                    <div class="form-group"><label>ID</label><input type="text" id="editUserIdDisplay" readonly></div>
+                    <div class="form-group"><label>ชื่อผู้ใช้ (Username) *</label><input type="text" id="editUsername" required></div>
+                    <div class="form-group"><label>รหัสผ่าน <span style="color:var(--text-muted);font-size:12px">(เว้นว่างถ้าไม่ต้องการเปลี่ยน)</span></label><input type="text" id="editPassword" placeholder="กรอกรหัสผ่านใหม่"></div>
+                    <div class="form-group"><label>ชื่อ-นามสกุล *</label><input type="text" id="editName" required></div>
+                    <div class="form-group"><label>ตำแหน่ง *</label><input type="text" id="editPosition" required></div>
+                    <div class="form-group"><label>สถานะ *</label>
+                        <select id="editStatus" required>
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                            <option value="superadmin">Super Admin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="editUserBtn">
+                        <span class="spinner" id="editUserSpinner"></span>
+                        <span id="editUserBtnText">บันทึกการแก้ไข</span>
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <!-- ===== Add Modal ===== -->
@@ -819,6 +991,11 @@ let previousDataSnapshot = {};
 let notifications = [];
 let unreadCount = 0;
 let fcmInitialized = false;
+// ★ Users & EditLog pagination state
+let allUsersData = [];
+let usersCurrentPage = 1;
+let allEditLogData = [];
+let editlogCurrentPage = 1;
 
 // ==========================================
 // Firebase Cloud Messaging (รองรับ iOS PWA)
@@ -1176,8 +1353,14 @@ function updateUserUI(){
     document.getElementById('sidebarAvatar').src=url;
     document.getElementById('sidebarUserName').textContent=currentUser.name;
     document.getElementById('sidebarPosition').textContent=currentUser.position;
-    const b=document.getElementById('sidebarBadge');b.textContent=currentUser.status;
-    b.className=currentUser.status?.toLowerCase()==='admin'?'sidebar-badge badge-admin':'sidebar-badge badge-user';
+    const b=document.getElementById('sidebarBadge');
+    const st=currentUser.status?.toLowerCase();
+    b.textContent=st==='superadmin'?'Super Admin':currentUser.status;
+    b.className=st==='superadmin'?'sidebar-badge badge-superadmin':st==='admin'?'sidebar-badge badge-admin':'sidebar-badge badge-user';
+    // Show/hide superadmin menu items
+    document.querySelectorAll('.superadmin-only').forEach(el=>{
+        el.classList.toggle('show',st==='superadmin');
+    });
 }
 function startAutoRefresh(){if(autoRefreshInterval)clearInterval(autoRefreshInterval);autoRefreshInterval=setInterval(()=>loadAllData(true),30000)}
 function stopAutoRefresh(){if(autoRefreshInterval){clearInterval(autoRefreshInterval);autoRefreshInterval=null}}
@@ -1279,7 +1462,7 @@ function viewDetail(id){
     else document.getElementById('detailContent').innerHTML='<p style="text-align:center;color:var(--danger)">ไม่พบข้อมูล</p>';
 }
 function displayDetailForm(d){
-    const isA=currentUser.status?.toLowerCase()==='admin';
+    const uSt=currentUser.status?.toLowerCase();const isA=uSt==='admin'||uSt==='superadmin';
     const isAp=d.Status==='Approved';const canE=isA&&!isAp;
     const ro=canE?'':'readonly';const di=canE?'':'disabled';
     const sc=d.Status==='Approved'?'status-approved':d.Status==='Rejected'?'status-rejected':'status-pending';
@@ -1415,7 +1598,7 @@ async function handleSaveEdit(id){
         phoneNumber:document.getElementById('detailPhoneNumber').value
     };
     try{
-        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'updateRequest',id,data:ud})});
+        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'updateRequest',id,data:ud,editedBy:{name:currentUser.name,position:currentUser.position}})});
         const res=await r.json();
         if(res.success){playSound('success');addNotification(`แก้ไขคำขอ ${id} สำเร็จ`,'edit',id);closeDetailModal();await Swal.fire({icon:'success',title:'สำเร็จ!',text:'บันทึกการแก้ไขเรียบร้อย',timer:1500,showConfirmButton:false});loadAllData();}
         else Swal.fire({icon:'error',title:'เกิดข้อผิดพลาด',text:res.message});
@@ -1571,7 +1754,7 @@ async function logout(){
 // Modal Click Outside
 // ==========================================
 window.onclick=e=>{
-    ['addModal','detailModal','userProfileModal'].forEach(id=>{
+    ['addModal','detailModal','userProfileModal','addUserModal','editUserModal'].forEach(id=>{
         if(e.target===document.getElementById(id)){
             if(id==='addModal')closeAddModal();
             else if(id==='detailModal')closeDetailModal();
@@ -1613,23 +1796,41 @@ function getAirlineValue(selectId,otherId){
 function showPage(page){
     const mainEl=document.getElementById('mainPage');
     const statsEl=document.getElementById('statsPage');
+    const usersEl=document.getElementById('usersPage');
+    const editlogEl=document.getElementById('editlogPage');
     const menuHome=document.getElementById('menuHome');
     const menuStats=document.getElementById('menuStats');
+    const menuUsers=document.getElementById('menuUsers');
+    const menuEditLog=document.getElementById('menuEditLog');
+    // Hide all pages
+    mainEl.classList.add('hidden');
+    statsEl.classList.remove('active');
+    if(usersEl)usersEl.classList.remove('active');
+    if(editlogEl)editlogEl.classList.remove('active');
+    // Remove all menu active
+    menuHome.classList.remove('active');
+    menuStats.classList.remove('active');
+    if(menuUsers)menuUsers.classList.remove('active');
+    if(menuEditLog)menuEditLog.classList.remove('active');
+    
     if(page==='stats'){
-        mainEl.classList.add('hidden');
         statsEl.classList.add('active');
-        menuHome.classList.remove('active');
         menuStats.classList.add('active');
-        // Init custom date picker
         if(!document.getElementById('customDate')._flatpickr){
             flatpickr('#customDate',{dateFormat:'d/m/Y',allowInput:false,locale:'th'});
         }
         renderAllStats(currentStatsFilter||'all');
+    }else if(page==='users'){
+        if(usersEl)usersEl.classList.add('active');
+        if(menuUsers)menuUsers.classList.add('active');
+        loadUsers();
+    }else if(page==='editlog'){
+        if(editlogEl)editlogEl.classList.add('active');
+        if(menuEditLog)menuEditLog.classList.add('active');
+        loadEditLogs();
     }else{
         mainEl.classList.remove('hidden');
-        statsEl.classList.remove('active');
         menuHome.classList.add('active');
-        menuStats.classList.remove('active');
     }
 }
 
@@ -1983,6 +2184,261 @@ function renderAirlineCharts(filtered,filterLabel){
         });
         airlineChartInstances.push(chart);
     });
+}
+
+// ==========================================
+// ★ User Management (Super Admin) ★
+// ==========================================
+async function loadUsers(){
+    const ld=document.getElementById('usersLoading');
+    const tw=document.getElementById('usersTableWrapper');
+    const pc=document.getElementById('usersPaginationContainer');
+    ld.style.display='flex';tw.style.display='none';pc.style.display='none';
+    try{
+        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'getAllUsers'})});
+        const res=await r.json();
+        if(res.success){
+            allUsersData=res.data||[];
+            usersCurrentPage=1;
+            ld.style.display='none';tw.style.display='block';
+            renderUsersPage();
+        }else{
+            ld.innerHTML='<p style="color:var(--danger)">'+res.message+'</p>';
+        }
+    }catch(e){
+        ld.innerHTML='<p style="color:var(--danger)">โหลดข้อมูลไม่สำเร็จ</p>';
+    }
+}
+
+function renderUsersPage(){
+    const tb=document.getElementById('usersTableBody');tb.innerHTML='';
+    const pc=document.getElementById('usersPaginationContainer');
+    if(!allUsersData||allUsersData.length===0){
+        tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:40px">ไม่มีข้อมูลผู้ใช้</td></tr>';
+        pc.style.display='none';return;
+    }
+    const si=(usersCurrentPage-1)*itemsPerPage;
+    const pageData=allUsersData.slice(si,si+itemsPerPage);
+    pageData.forEach(u=>{
+        const st=String(u.status).toLowerCase();
+        const badgeClass=st==='superadmin'?'badge-superadmin':st==='admin'?'badge-admin':'badge-user';
+        const badgeText=st==='superadmin'?'Super Admin':u.status;
+        const canDelete=st!=='superadmin';
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+            <td style="font-weight:600">${u.id||''}</td>
+            <td>${u.username||''}</td>
+            <td>${u.name||''}</td>
+            <td>${u.position||''}</td>
+            <td><span class="sidebar-badge ${badgeClass}" style="margin:0">${badgeText}</span></td>
+            <td>
+                <button class="btn-edit-user" onclick="openEditUserModal('${u.id}','${(u.username||'').replace(/'/g,"\\'")}','${(u.name||'').replace(/'/g,"\\'")}','${(u.position||'').replace(/'/g,"\\'")}','${u.status||'user'}')">แก้ไข</button>
+                ${canDelete?'<button class="btn-delete-user" onclick="confirmDeleteUser(\''+u.id+'\',\''+u.name+'\')">ลบ</button>':''}
+            </td>
+        `;
+        tb.appendChild(tr);
+    });
+    pc.style.display='flex';
+    updateGenericPagination(allUsersData.length,usersCurrentPage,'usersPaginationInfo','usersPagination',function(p){usersCurrentPage=p;renderUsersPage()});
+}
+
+function openAddUserModal(){document.getElementById('addUserModal').style.display='flex'}
+function closeAddUserModal(){document.getElementById('addUserModal').style.display='none';document.getElementById('addUserForm').reset()}
+
+function openEditUserModal(id,username,name,position,status){
+    document.getElementById('editUserId').value=id;
+    document.getElementById('editUserIdDisplay').value=id;
+    document.getElementById('editUsername').value=username;
+    document.getElementById('editPassword').value='';
+    document.getElementById('editName').value=name;
+    document.getElementById('editPosition').value=position;
+    document.getElementById('editStatus').value=status.toLowerCase();
+    document.getElementById('editUserModal').style.display='flex';
+}
+function closeEditUserModal(){document.getElementById('editUserModal').style.display='none';document.getElementById('editUserForm').reset()}
+
+document.getElementById('editUserForm').addEventListener('submit',async(e)=>{
+    e.preventDefault();
+    const btn=document.getElementById('editUserBtn');
+    const sp=document.getElementById('editUserSpinner');
+    const tx=document.getElementById('editUserBtnText');
+    btn.disabled=true;sp.classList.add('active');tx.textContent='กำลังบันทึก...';
+    
+    const uid=document.getElementById('editUserId').value;
+    const data={
+        username:document.getElementById('editUsername').value.trim(),
+        password:document.getElementById('editPassword').value.trim(),
+        name:document.getElementById('editName').value.trim(),
+        position:document.getElementById('editPosition').value.trim(),
+        status:document.getElementById('editStatus').value
+    };
+    
+    try{
+        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({
+            action:'editUser',userId:uid,data:data,
+            editedBy:{name:currentUser.name,position:currentUser.position}
+        })});
+        const res=await r.json();
+        if(res.success){
+            await Swal.fire({icon:'success',title:'สำเร็จ!',text:'แก้ไขข้อมูลผู้ใช้เรียบร้อยแล้ว',timer:1500,showConfirmButton:false});
+            closeEditUserModal();loadUsers();
+        }else{
+            Swal.fire({icon:'error',title:'ไม่สำเร็จ',text:res.message});
+        }
+    }catch(err){
+        Swal.fire({icon:'error',title:'เกิดข้อผิดพลาด',text:'ไม่สามารถแก้ไขข้อมูลได้'});
+    }finally{
+        btn.disabled=false;sp.classList.remove('active');tx.textContent='บันทึกการแก้ไข';
+    }
+});
+
+document.getElementById('addUserForm').addEventListener('submit',async(e)=>{
+    e.preventDefault();
+    const btn=document.getElementById('addUserBtn');
+    const sp=document.getElementById('addUserSpinner');
+    const tx=document.getElementById('addUserBtnText');
+    btn.disabled=true;sp.classList.add('active');tx.textContent='กำลังเพิ่มผู้ใช้...';
+    
+    try{
+        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({
+            action:'addUser',
+            data:{
+                username:document.getElementById('newUsername').value.trim(),
+                password:document.getElementById('newPassword').value.trim(),
+                name:document.getElementById('newName').value.trim(),
+                position:document.getElementById('newPosition').value.trim(),
+                status:document.getElementById('newStatus').value
+            },
+            editedBy:{name:currentUser.name,position:currentUser.position}
+        })});
+        const res=await r.json();
+        if(res.success){
+            await Swal.fire({icon:'success',title:'สำเร็จ!',text:'เพิ่มผู้ใช้เรียบร้อยแล้ว ('+res.id+')',timer:1500,showConfirmButton:false});
+            closeAddUserModal();loadUsers();
+        }else{
+            Swal.fire({icon:'error',title:'ไม่สำเร็จ',text:res.message});
+        }
+    }catch(err){
+        Swal.fire({icon:'error',title:'เกิดข้อผิดพลาด',text:'ไม่สามารถเพิ่มผู้ใช้ได้'});
+    }finally{
+        btn.disabled=false;sp.classList.remove('active');tx.textContent='เพิ่มผู้ใช้';
+    }
+});
+
+async function confirmDeleteUser(userId,userName){
+    const conf=await Swal.fire({
+        icon:'warning',title:'ยืนยันการลบผู้ใช้?',
+        html:'คุณต้องการลบผู้ใช้ <strong>'+userName+'</strong> ('+userId+') หรือไม่?<br><span style="color:var(--danger);font-size:13px">การดำเนินการนี้ไม่สามารถย้อนกลับได้</span>',
+        showCancelButton:true,confirmButtonColor:'#ef4444',cancelButtonColor:'#94a3b8',
+        confirmButtonText:'ลบผู้ใช้',cancelButtonText:'ยกเลิก'
+    });
+    if(!conf.isConfirmed)return;
+    try{
+        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({
+            action:'deleteUser',userId:userId,
+            editedBy:{name:currentUser.name,position:currentUser.position}
+        })});
+        const res=await r.json();
+        if(res.success){
+            await Swal.fire({icon:'success',title:'ลบสำเร็จ',text:'ลบผู้ใช้ '+userName+' เรียบร้อยแล้ว',timer:1500,showConfirmButton:false});
+            loadUsers();
+        }else{
+            Swal.fire({icon:'error',title:'ไม่สำเร็จ',text:res.message});
+        }
+    }catch(err){
+        Swal.fire({icon:'error',title:'เกิดข้อผิดพลาด',text:'ไม่สามารถลบผู้ใช้ได้'});
+    }
+}
+
+// ==========================================
+// ★ Edit Logs (Super Admin) ★
+// ==========================================
+async function loadEditLogs(){
+    const ld=document.getElementById('editlogLoading');
+    const tw=document.getElementById('editlogTableWrapper');
+    const pc=document.getElementById('editlogPaginationContainer');
+    ld.style.display='flex';tw.style.display='none';pc.style.display='none';
+    try{
+        const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'getEditLogs'})});
+        const res=await r.json();
+        if(res.success){
+            // เรียงจากล่าสุดไปเก่าสุด
+            allEditLogData=(res.data||[]).slice().reverse();
+            editlogCurrentPage=1;
+            ld.style.display='none';tw.style.display='block';
+            renderEditLogPage();
+        }else{
+            ld.innerHTML='<p style="color:var(--danger)">'+res.message+'</p>';
+        }
+    }catch(e){
+        ld.innerHTML='<p style="color:var(--danger)">โหลดข้อมูลไม่สำเร็จ</p>';
+    }
+}
+
+function renderEditLogPage(){
+    const tb=document.getElementById('editlogTableBody');tb.innerHTML='';
+    const pc=document.getElementById('editlogPaginationContainer');
+    if(!allEditLogData||allEditLogData.length===0){
+        tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:40px">ยังไม่มีบันทึกการแก้ไข</td></tr>';
+        pc.style.display='none';return;
+    }
+    const si=(editlogCurrentPage-1)*itemsPerPage;
+    const pageData=allEditLogData.slice(si,si+itemsPerPage);
+    pageData.forEach(l=>{
+        const act=String(l.Action||'');
+        let cls='log-edit';
+        if(act.includes('อนุมัติ'))cls='log-approve';
+        else if(act.includes('ปฏิเสธ'))cls='log-reject';
+        else if(act.includes('เพิ่มผู้ใช้'))cls='log-adduser';
+        else if(act.includes('ลบผู้ใช้'))cls='log-deluser';
+        else if(act.includes('แก้ไขผู้ใช้'))cls='log-edit';
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+            <td style="font-weight:600">${l.LogID||''}</td>
+            <td>${formatDateTime(l.Timestamp)}</td>
+            <td><span class="log-action ${cls}">${l.Action||''}</span></td>
+            <td>${l.TargetID||''}</td>
+            <td style="white-space:normal;max-width:300px">${l.Details||''}</td>
+            <td>${l.EditedBy||''}${l.EditedByPosition?' ('+l.EditedByPosition+')':''}</td>
+        `;
+        tb.appendChild(tr);
+    });
+    pc.style.display='flex';
+    updateGenericPagination(allEditLogData.length,editlogCurrentPage,'editlogPaginationInfo','editlogPagination',function(p){editlogCurrentPage=p;renderEditLogPage()});
+}
+
+// ==========================================
+// ★ Generic Pagination (ใช้ร่วมกัน) ★
+// ==========================================
+function updateGenericPagination(totalItems,curPage,infoId,pgId,onPageChange){
+    const tp=Math.ceil(totalItems/itemsPerPage);
+    const si=(curPage-1)*itemsPerPage+1;
+    const ei=Math.min(curPage*itemsPerPage,totalItems);
+    document.getElementById(infoId).textContent=`แสดง ${si}-${ei} จาก ${totalItems} รายการ`;
+    const pg=document.getElementById(pgId);pg.innerHTML='';
+    const isMobile=window.innerWidth<=768;
+    const range=isMobile?1:2;
+    // Prev
+    const pb=document.createElement('button');pb.innerHTML='&laquo;';pb.disabled=curPage===1;
+    pb.onclick=()=>{if(curPage>1)onPageChange(curPage-1)};pg.appendChild(pb);
+    // Page numbers
+    const sp=Math.max(1,curPage-range),ep=Math.min(tp,curPage+range);
+    if(sp>1){
+        const fb=document.createElement('button');fb.textContent='1';fb.onclick=()=>onPageChange(1);pg.appendChild(fb);
+        if(sp>2){const dt=document.createElement('button');dt.textContent='…';dt.disabled=true;pg.appendChild(dt)}
+    }
+    for(let i=sp;i<=ep;i++){
+        const btn=document.createElement('button');btn.textContent=i;
+        if(i===curPage)btn.classList.add('active');
+        btn.onclick=()=>onPageChange(i);pg.appendChild(btn);
+    }
+    if(ep<tp){
+        if(ep<tp-1){const dt=document.createElement('button');dt.textContent='…';dt.disabled=true;pg.appendChild(dt)}
+        const lb=document.createElement('button');lb.textContent=tp;lb.onclick=()=>onPageChange(tp);pg.appendChild(lb);
+    }
+    // Next
+    const nb=document.createElement('button');nb.innerHTML='&raquo;';nb.disabled=curPage===tp||tp===0;
+    nb.onclick=()=>{if(curPage<tp)onPageChange(curPage+1)};pg.appendChild(nb);
 }
 </script>
 </body>
